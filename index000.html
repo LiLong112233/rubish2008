@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录页面</title>
+    <script src="js/vue.js"></script>
+    <script src="js/axios.min.js"></script>
+    <script src="js/vue-router.js"></script>
+</head>
+<body>
+<h1 style="color: red">   欢迎 进入 登录 界面  </h1>
+  <div id="app">
+    <table>
+        <tr>
+            <td>用户名：</td>
+            <td><input type="text" v-model="u_name" ></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="text" v-model="u_pwd"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="button"  v-on:click="login"  value="登录"></td>
+        </tr>
+    </table>
+  </div>
+</body>
+<script>
+
+
+    
+    new Vue({
+        el:'#app',
+        data:{
+            u_name:'',
+            u_pwd :''
+        },
+        methods:{
+            login(){
+               if (this.u_name==''){
+                   alert('用户名不能为空')
+               }else{
+                   // let u_pwd =md5(this.u_pwd)
+                   let data= {"user_name":`  '${this.u_name}'`,"password":this.u_pwd  }
+                   console.log(data)
+                   axios.post(`http://localhost:8080/user/login`,data )
+                   .then(res=>{
+                       console.log(res)
+                   })
+               }
+            },
+
+        }
+
+
+    })
+
+
+
+</script>
+</html>

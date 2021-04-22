@@ -5,9 +5,101 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>登录页面</title>
+    <script src="js/vue.js"></script>
+    <script src="js/axios.min.js"></script>
+    <script src="js/vue-router.js"></script>
 </head>
 <body>
-<h1> hello  world </h1>
+
+  <div id="app">
+  <router-view></router-view>
+  </div>
 </body>
+<script>
+
+    const user_login ={
+        template:`
+        <table>
+            <h1 style="color: red">   欢迎 进入 登录 界面  </h1>
+        <tr>
+            <td>用户名：</td>
+            <td><input type="text" v-model="u_name" ></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="text" v-model="u_pwd"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="button"  v-on:click="login"  value="登录"></td>
+        </tr>
+    </table>`,
+        methods:{
+            login(){
+                if (this.u_name==''){
+                    alert('用户名不能为空')
+                }else{
+                    // let u_pwd =md5(this.u_pwd)
+                    let data= {"user_name":`  '${this.u_name}'`,"password":this.u_pwd  }
+                    console.log(data)
+                    axios.post(`http://localhost:8080/user/login`,data )
+                        .then(res=>{
+                            console.log(res)
+                         this.$router.push({path:'/user/reg',query:{user_name:this.u_name}})
+                        })
+                }
+            }
+        },
+    }
+    const user_list={
+        template: `
+            <table>
+        <thead>
+          <tr>
+            <th>编号</th>
+            <th>名称</th>
+            <th>时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :key='item.id' v-for='(item,index) in books'>
+            <td>{{item.user_id}}</td>
+            <td>{{item.user_name}}</td>
+            <td>{{item.time}}</td>
+            <td>
+              <a href="">修改</a>
+              <span>|</span>
+              <a href="" @click.prevent="del(index)">删除</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+       `,
+    }
+
+    const  routes =[
+        {path:'/',redirect:"/user/login"},
+        {path: '/user/login',component:user_login},
+        {path: '/user/reg',component: user_list}
+    ]
+    //实例化
+    const router = new VueRouter({
+           routes
+    })
+    //  路由挂载
+    new Vue({
+        el:'#app',
+        router:router,
+        data:{
+                u_name:'',
+                u_pwd :'',
+        },
+
+    })
+
+
+
+</script>
 </html>
