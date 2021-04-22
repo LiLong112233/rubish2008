@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>基于vue-router的案例</title>
+    <style type="text/css">
+      html,
+      body,
+      #app {
+        margin: 0;
+        padding: 0px;
+        height: 100%;
+      }
+      .header {
+        height: 50px;
+        background-color: #545c64;
+        line-height: 50px;
+        text-align: center;
+        font-size: 24px;
+        color: #fff;
+      }
+      .footer {
+        height: 40px;
+        line-height: 40px;
+        background-color: #888;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        color: #fff;
+      }
+      .main {
+        display: flex;
+        position: absolute;
+        top: 50px;
+        bottom: 40px;
+        width: 100%;
+      }
+      .content {
+        flex: 1;
+        text-align: center;
+        height: 100%;
+      }
+      .left {
+        flex: 0 0 20%;
+        background-color: #545c64;
+      }
+      .left a {
+        color: white;
+        text-decoration: none;
+      }
+      .right {
+        margin: 5px;
+      }
+      .btns {
+        width: 100%;
+        height: 35px;
+        line-height: 35px;
+        background-color: #f5f5f5;
+        text-align: left;
+        padding-left: 10px;
+        box-sizing: border-box;
+      }
+      button {
+        height: 30px;
+        background-color: #ecf5ff;
+        border: 1px solid lightskyblue;
+        font-size: 12px;
+        padding: 0 20px;
+      }
+      .main-content {
+        margin-top: 10px;
+      }
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      ul li {
+        height: 45px;
+        line-height: 45px;
+        background-color: #a0a0a0;
+        color: #fff;
+        cursor: pointer;
+        border-bottom: 1px solid #fff;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      td,
+      th {
+        border: 1px solid #eee;
+        line-height: 35px;
+        font-size: 12px;
+      }
+
+      th {
+        background-color: #ddd;
+      }
+    </style>
+    <script src="js/vue.js"></script>
+    <script src="js/vue-router.js"></script>
+    <script src="js/axios.min.js"></script>
+  </head>
+  <body>
+   <div id="app">
+    <router-view></router-view>
+   </div>
+  </body>
+  <script>
+    const App={
+      template:`
+         <div>
+      <header class="header">XX后台管理系统</header>
+      <div class="main">
+      <div class="content left">
+      <ul>
+      <li><router-link to="/users">用户管理</router-link></li>
+      <li><router-link to="/privs">权限管理</router-link></li>
+      <li><router-link to="/goods">商品管理</router-link></li>
+      <li><router-link to="/orders">订单管理</router-link></li>
+      <li><router-link to="/settings">系统设置</router-link></li>
+      </ul>
+      </div>
+      <div class="content right"><div class="main-content">
+       <router-view></router-view>
+</div></div>
+      </div>
+      <footer class="footer">版权信息</footer>
+      </div>
+      `
+    }
+    //定义组件
+    const User={
+      data(){
+        return {
+          UaseList:[]
+        }
+      },
+      template:` <div><h3> 用户管理 </h3>
+        <table>
+          <thead>
+          <tr><th>编号</th><th>姓名</th><th>邮箱</th><th>电话</th><th>操作</th></tr>
+          </thead>
+          <tbody>
+          <tr v-for="(item,index) in UaseList" :key="item.user_id">
+            <td>{{item.user_id}}</td>
+            <td>{{item.user_name}}</td>
+            <td>{{item.email}}</td>
+            <td>{{item.mobile}}</td>
+            <td>
+              <a href="javascript:;" @click="goDetail(item.user_id)">详情</a>|
+              <a href="javascript:;" @click="deleteUser(item.user_id)">删除</a>|
+              <a href="javascript:;" @click="updata(item.user_id)">修改</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <button v-on:click="user_insert"> 用户添加  </button>
+      </div>`,
+
+      created(){
+        this.getUserlist()
+      },
+      methods:{
+        getUserlist(){
+          var  self = this
+          axios.get('http://localhost:8080/user/list').then(function (res){
+            self.UaseList=res.data
+          })
+        },
+       goDetail(userid){
+         this.$router.push("/userDetail/"+userid)
+       },
+         deleteUser(uid){
+          let self =this
+           axios.get("http://rubish_api.com/user/delete?uid="+uid).then(function (res) {
+            console.log('删除用户',res.data)
+            self.getUserlist()
+           })
+       },
+       updata(userid){
+          this.$router.push("/editUser/"+userid)
+      },
+      },
+    }
+    //用户详情
+    const UserDetail={
+      data(){
+        return{
+          Useroncelist:[]
+        }
+      },
+      props:['id'],
+      template:`
+       <div><h3> {{id}} 用户详情   </h3>
+         <table>
+           <thead>
+           <tr><th>编号</th><th>姓名</th><th>邮箱</th><th>手机号</th></tr>
+           </thead>
+           <tbody>
+           <tr v-for="item in Useroncelist" :key="item.user_id">
+             <td>{{item.user_id}}</td>
+             <td>{{item.user_name}}</td>
+             <td>{{item.email}}</td>
+             <td>{{item.mobile}}</td>
+           </tr>
+           </tbody>
+           <button v-on:click="back"> 返回上一页</button>
+         </table>
+       </div>
+      `,
+      created() {
+      this.getUserlist()
+      },
+      methods:{
+        getUserlist(){
+          var  self = this
+          axios.get(`http://localhost:8080/user/center?user_id=`+self.id).then(function (res){
+            self.Useroncelist=res.data
+          })
+        },
+        back(){
+          this.$router.go(-1)
+        }
+      }
+    }
+    //用户信息修改
+    const  EditUser={
+      data(){
+        return{
+          Useroncelist:{}
+        }
+      },
+      props:['uid'],
+      template:`
+        <div class="user-edit">
+          <table>
+            <tr><th><h3>{{uid}}用户编辑</h3></th></tr>
+            用户ID: <input type="text" disabled :value="Useroncelist.user_id"> <br>
+            用户名：<input type="text" v-model="Useroncelist.user_name"> <br>
+            Email：<input type="text" v-model="Useroncelist.email"> <br>
+            手机号：<input type="text" v-model="Useroncelist.mobile"> <br><br>
+            <button @click="updateUser()">提交修改</button>
+            <button @click="goBack">返回</button>
+          </table>
+
+        </div>
+      `,
+      created() {
+          let  self = this
+          axios.get(`http://rubish_api.com/user/center?user_id=`+self.uid).then(function (res){
+            self.Useroncelist=res.data[0]
+          })
+      },
+      methods:{
+       updateUser() {
+        let self =this
+         axios.post(`http://rubish_api.com/user/update`,self.Useroncelist).then(function (res) {
+           if (res.data.errno==0){
+             alert('修改成功,即将返回用户展示页面')
+             self.$router.push('/users')
+           }else{
+
+             alert('修改失败')
+           }
+         })
+
+       },
+        goBack(){
+          this.$router.go(-1)
+        }
+      }
+    }
+
+      const Priv={
+      template:`<div><h3> 权限管理 </h3></div>`
+    }
+      const Goods={
+      data(){
+        return{
+          goodsList:[]
+        }
+      },
+      template:`<div><h3> 商品管理 </h3>
+        <table>
+          <thead>
+          <tr><th>编号</th><th>名称</th><th>数量</th><th>价格</th><th>操作</th></tr>
+          </thead>
+          <tbody>
+          <tr v-for="(item,index) in goodsList" :key="item.user_id">
+            <td>{{item.goods_id}}</td>
+            <td>{{item.goods_name}}</td>
+            <td>{{item.goods_number}}</td>
+            <td>{{item.shop_price}}</td>
+            <td>
+              <a href="javascript:;" @click="goDetail(item.user_id)">详情</a> |
+              <a href="javascript:;" @click="goDel(index)">删除</a> |
+              <router-link :to="{path:'/edit/'+item.user_id}">编辑</router-link>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+</div>`,
+    created(){
+        this.Goods_List()
+    },
+    methods:{
+
+    }
+
+
+
+    }
+      const Orders={
+      template:`<div><h3> 订单管理 </h3></div>`
+    }
+      const Settings={
+      template:`<div><h3> 系统设置 </h3></div>`
+    }
+    const routes =[
+      {path:'/',component:App ,children:[
+          {path:'/users',component:User},
+          {path:'/privs',component:Priv},
+          {path:'/goods',component: Goods },
+          {path:'/orders',component:Orders },
+          {path:'/settings',component:Settings},
+          {path:'/userDetail/:id',component: UserDetail,props:true  },
+          {path:'/editUser/:uid',component: EditUser,props:true  }
+
+        ]},
+    ]
+  const  router=new  VueRouter({
+    routes:routes
+  })
+  new Vue({
+    el:"#app",
+    router:router
+  })
+
+  </script>
+</html>
